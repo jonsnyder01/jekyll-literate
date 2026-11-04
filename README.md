@@ -108,7 +108,9 @@ static void strbuf_reserve(StrBuf *buffer, size_t extra) { … }
 ````
 
 Repeating an `id` makes an appended fragment (shown as `⟨id⟩ +≡`). Other chapters can reference
-a name as `<<strbuf::reserve>>`. Use `~~~` fences for examples that must not be tangled.
+a name as `<<strbuf::reserve>>`. Use `~~~` fences for examples that must not be tangled. A file
+fragment can also set the file's mode, such as `mode: "0755"` for a script; Entangled writes
+every other file readable by its owner only, which git records as an ordinary file.
 
 A fence's language must be one Entangled knows. Others are declared in `entangled.toml`, and the
 weave reads them from there too, to find their attribute lines:
