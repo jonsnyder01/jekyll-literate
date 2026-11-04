@@ -1,0 +1,11 @@
+---
+# Front matter makes Jekyll compile this file to /assets/css/main.css; the
+# partials it imports are in _sass/literate/. A book overrides one by putting
+# its own copy at the same path in its source (e.g. its _sass/literate/_settings.scss).
+---
+
+@import "literate/settings";
+@import "literate/fonts";
+@import "literate/syntax-highlighting";
+@import "literate/base";
+@import "literate/literate";

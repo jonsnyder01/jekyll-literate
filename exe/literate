@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Tangles the book with Entangled, then weaves it with Jekyll:
+#   literate build          build into the configured destination
+#   literate serve          preview at http://localhost:4000 with live reload
+# Run from the book's root, where _config.yml is (any further arguments go to Jekyll).
+
+command = ARGV.shift || "build"
+# The source browser is built from the tangled files, so refresh them.
+system("entangled", "tangle") or abort "literate: `entangled tangle` failed"
+config = ARGV.include?("--config") ? [] : ["--config", "_config.yml"]
+exec Gem.ruby, Gem.bin_path("jekyll", "jekyll"), command, *config, *ARGV

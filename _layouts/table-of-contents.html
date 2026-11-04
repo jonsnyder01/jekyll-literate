@@ -1,0 +1,17 @@
+---
+layout: default
+---
+<h1>{{ page.title }}</h1>
+
+<ol class="contents">
+{%- for chapter in site.data.chapters %}
+  <li class="chapter"><a href="{{ chapter.url | relative_url }}">{{ chapter.title }}</a>
+  {%- if chapter.sections.size > 0 %}<ol>
+    {%- for section in chapter.sections %}
+    <li><a href="{{ section.url | relative_url }}">{{ section.title }}</a></li>
+    {%- endfor %}
+  </ol>{% endif %}</li>
+{%- endfor %}
+</ol>
+
+{% include reading-order.html %}

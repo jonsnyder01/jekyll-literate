@@ -1,0 +1,7 @@
+{%- assign source_url = site.literate.tangle_dir | prepend: '/' | append: '/' -%}
+<header>
+  <nav>
+    <a href="{{ '/contents/' | relative_url }}"{% if page.url == '/contents/' %} class="active"{% endif %}>Contents</a>
+    <a href="{{ source_url | relative_url }}"{% if page.url contains source_url %} class="active"{% endif %}>Source</a>
+  </nav>
+</header>

@@ -1,0 +1,23 @@
+// Fonts and colours shared by the stylesheets. Sizes and layout are in
+// _base.scss; the fonts themselves are declared in _fonts.scss.
+
+$body-font: "Source Serif 4", Georgia, serif;
+$sans-font: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+// Menlo comes second: it supplies the ⟨ ⟩ that Source Code Pro lacks.
+$code-font: "Source Code Pro", Menlo, Consolas, "Liberation Mono", monospace;
+// Weight of bold tokens in syntax highlighting (keywords, types, names).
+// Source Code Pro is variable, so any weight from 200 to 900 works; 700 is bold.
+$code-bold: 500;
+
+// Line heights as multiples of the font size; each is rounded to a whole
+// pixel at every size step (see _base.scss).
+$text-leading: 1.4;
+$code-leading: 1.3;
+
+// Width of the prose (paragraphs, lists, headings) as a fraction of the
+// column; code blocks always use the full column (80 characters of code).
+$text-measure: 0.85;
+
+$text-color: #111;
+$bg-color: #fffff8;
+$contrast-color: #900; // links and accents

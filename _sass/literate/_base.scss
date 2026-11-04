@@ -1,0 +1,201 @@
+// The site's type scale and page layout.
+//
+// Sizes are in rem and breakpoints in em, so both follow a reader's own
+// font-size setting; at the browser's default 16px every size is a whole
+// number of pixels. Line heights are $text-leading and $code-leading (in
+// _settings.scss) times the size, rounded to a whole pixel. Sizes step up
+// with the window width:
+//
+//   window      text  code/names   title  layout
+//   < 960px     17px  14px         28px   one column, names above code
+//   ≥ 960px     17px  14px         28px   names in a left margin
+//   ≥ 1024px    18px  15px         29px   names in a left margin
+//   ≥ 1080px    19px  16px         30px   names in a left margin
+//   ≥ 1280px    20px  17px         32px   names in a left margin
+//   ≥ 1536px    22px  18px         36px   names in a left margin
+//
+// The column is exactly as wide as a code block: 80 characters of Source
+// Code Pro, whose every glyph is 0.6em wide, plus 1ch of padding on each
+// side; prose takes $text-measure (in _settings.scss) of that width. The
+// left margin holds 24 characters of name. Each step starts at the first
+// width where its margin, column and page padding fit.
+
+// Window width from which fragments' names sit in the left margin
+// (also used by _literate.scss).
+$margin-layout: 60em;
+
+:root {
+    --text-size: 1.0625rem;
+    --code-size: 0.875rem;
+    --title-size: 1.75rem;
+    --text-leading: round(calc(var(--text-size) * #{$text-leading}), 1px);
+    --code-leading: round(calc(var(--code-size) * #{$code-leading}), 1px);
+    --ch: calc(var(--code-size) * 0.6);
+    --measure: calc(var(--ch) * 82);
+    --text-measure: calc(var(--measure) * #{$text-measure});
+    --margin: calc(var(--ch) * 24);
+    --gap: 1.5rem;
+    --indent: 0px;
+    --page-padding: 1rem;
+}
+
+@media (min-width: $margin-layout) {
+    :root {
+        --indent: calc(var(--margin) + var(--gap));
+    }
+}
+
+@media (min-width: 64em) {
+    :root {
+        --text-size: 1.125rem;
+        --code-size: 0.9375rem;
+        --title-size: 1.8125rem;
+    }
+}
+
+@media (min-width: 67.5em) {
+    :root {
+        --text-size: 1.1875rem;
+        --code-size: 1rem;
+        --title-size: 1.875rem;
+    }
+}
+
+@media (min-width: 80em) {
+    :root {
+        --text-size: 1.25rem;
+        --code-size: 1.0625rem;
+        --title-size: 2rem;
+        --page-padding: 2rem;
+    }
+}
+
+@media (min-width: 96em) {
+    :root {
+        --text-size: 1.375rem;
+        --code-size: 1.125rem;
+        --title-size: 2.25rem;
+    }
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    background: $bg-color;
+    color: $text-color;
+    font-family: $body-font;
+    font-size: var(--text-size);
+    line-height: var(--text-leading);
+    font-kerning: normal;
+}
+
+// The page: a left margin column (on wide windows) beside the text column,
+// centred as one block.
+.page {
+    max-width: calc(var(--indent) + var(--measure) + 2 * var(--page-padding));
+    margin: 0 auto;
+    padding: 0 var(--page-padding) 3rem;
+    > header,
+    > article,
+    > footer {
+        margin-left: var(--indent);
+        max-width: var(--measure);
+    }
+}
+
+h1 {
+    margin: 1.5rem 0 0.5rem;
+    font-size: var(--title-size);
+    line-height: 1.25;
+    font-weight: 400;
+}
+
+// Subsection headings: upright small capitals at the text size.
+h2 {
+    margin: 2.5rem 0 0.5rem;
+    font-size: var(--text-size);
+    line-height: var(--text-leading);
+    font-weight: 300;
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.1em;
+}
+
+h3 {
+    margin: 2rem 0 0.5rem;
+    font-size: var(--text-size);
+    line-height: var(--text-leading);
+    font-weight: 400;
+    font-style: italic;
+}
+
+p,
+ul,
+ol {
+    margin: 0 0 1em;
+}
+
+ul,
+ol {
+    padding-left: 1.5em;
+}
+
+// Prose is narrower than the code blocks, which keep the full column.
+article > :where(p, ul, ol, h1, h2, h3, blockquote) {
+    max-width: var(--text-measure);
+}
+
+a {
+    color: $contrast-color;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+code,
+pre {
+    font-family: $code-font;
+    font-size: var(--code-size);
+}
+
+pre {
+    line-height: var(--code-leading);
+}
+
+.subtitle {
+    margin-top: 0;
+    color: #666;
+    font-style: italic;
+}
+
+.page > header {
+    padding-top: 2rem;
+    nav {
+        display: flex;
+        gap: 1.5em;
+        font-variant-caps: all-small-caps;
+        letter-spacing: 0.08em;
+    }
+    a.active {
+        color: $text-color;
+    }
+}
+
+.page > footer {
+    margin-top: 4rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+    color: #666;
+    font-size: var(--code-size);
+    line-height: var(--code-leading);
+}

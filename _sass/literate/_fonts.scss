@@ -1,0 +1,59 @@
+// Fonts served with the site: Adobe's Source Serif 4 (text), Source Sans 3
+// (file headers) and Source Code Pro (code), all SIL Open Font License 1.1
+// (see assets/fonts/*/LICENSE.md).
+// Each is a variable font: one file per style covers every weight, and
+// Source Serif 4's optical-size axis adjusts its design to the text size.
+
+@font-face {
+    font-family: "Source Serif 4";
+    src: url("../fonts/source-serif-4/SourceSerif4Variable-Roman.ttf.woff2")
+        format("woff2");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Serif 4";
+    src: url("../fonts/source-serif-4/SourceSerif4Variable-Italic.ttf.woff2")
+        format("woff2");
+    font-weight: 200 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Sans 3";
+    src: url("../fonts/source-sans-3/SourceSans3VF-Upright.ttf.woff2")
+        format("woff2");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Sans 3";
+    src: url("../fonts/source-sans-3/SourceSans3VF-Italic.ttf.woff2")
+        format("woff2");
+    font-weight: 200 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Code Pro";
+    src: url("../fonts/source-code-pro/SourceCodeVF-Upright.ttf.woff2")
+        format("woff2");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Code Pro";
+    src: url("../fonts/source-code-pro/SourceCodeVF-Italic.ttf.woff2")
+        format("woff2");
+    font-weight: 200 900;
+    font-style: italic;
+    font-display: swap;
+}

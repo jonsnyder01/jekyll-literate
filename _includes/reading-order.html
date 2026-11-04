@@ -1,0 +1,4 @@
+<nav class="reading-order">
+  {% if page.previous %}<a class="previous" href="{{ page.previous.url | relative_url }}">← {{ page.previous.title }}</a>{% endif %}
+  {% if page.next %}<a class="next" href="{{ page.next.url | relative_url }}">{{ page.next.title }} →</a>{% endif %}
+</nav>

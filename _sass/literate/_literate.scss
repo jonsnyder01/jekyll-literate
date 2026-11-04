@@ -1,0 +1,410 @@
+// Styles for the book and source browser: code blocks, fragments' names in
+// the left margin, the title page, the table of contents, reading-order links
+// and the source browser's listings. Sizes and widths come from the scale in _base.scss.
+
+$code-bg: #efefea;
+$target-bg: #fff3c4;
+$muted-color: #555;
+// The lightest gray that keeps $bg-color text at WCAG AA contrast (4.5:1);
+// this one gives 4.52:1, and #777 would fall to 4.46:1.
+$file-bg: #767676;
+$corner-radius: 0.25rem;
+// Space above and below a file header's path. The code below it has none,
+// so a highlight runs from the header to the bottom edge.
+$header-padding: 0.25rem;
+// Line numbers: the lightest gray at WCAG AA (4.5:1) on both the code
+// background and $target-bg.
+$line-number-color: #6c6c6c;
+
+// Code blocks fill the text column: 80 characters plus 1ch padding each side.
+// An example (a code block that is not a fragment) is rounded at every corner.
+div.highlighter-rouge {
+    margin: 0 0 1em;
+    div.highlight {
+        margin: 0;
+        background: transparent;
+    }
+    pre.highlight {
+        width: 100%;
+        margin: 0;
+        padding: 0.75rem 1ch;
+        overflow-x: auto;
+        border-radius: $corner-radius;
+        background: $code-bg;
+    }
+}
+
+// A fragment (wrapper rendered by _plugins/literate.rb): a file header with
+// the full path of the tangled file its code is in, then the code, rounded at
+// the top of the header and the bottom of the code. A named fragment's name,
+// set like the code, sits between them on narrow windows and in the left
+// margin, level with the first line of code, on wider ones.
+.fragment {
+    margin: 1.5rem 0;
+    scroll-margin-top: 2rem;
+    div.highlighter-rouge {
+        margin: 0;
+    }
+    div.highlighter-rouge pre.highlight {
+        padding-block: 0;
+        border-radius: 0 0 $corner-radius $corner-radius;
+    }
+}
+
+// File header: a gray tab over the code, set in the sans with its text
+// aligned with the code's, linking to the fragment's lines in the source
+// browser. A fragment appended to a file says "(continued)", in italic.
+.file-header {
+    padding: $header-padding var(--ch);
+    border-radius: $corner-radius $corner-radius 0 0;
+    background: $file-bg;
+    color: $bg-color;
+    font-family: $sans-font;
+    font-size: var(--code-size);
+    line-height: var(--code-leading);
+    code {
+        font-family: inherit;
+        font-size: inherit;
+    }
+    a {
+        color: inherit;
+    }
+}
+
+.fragment > .fragment-name {
+    padding-bottom: 0.25rem;
+    color: $muted-color;
+    font-family: $code-font;
+    font-size: var(--code-size);
+    line-height: var(--code-leading);
+    code {
+        font-size: inherit;
+    }
+    // The name links to the reference to it.
+    a {
+        color: inherit;
+    }
+}
+
+// A reference's `⟨name⟩` links to its expansion in the source browser.
+.reference-name a {
+    color: inherit;
+}
+
+// A reference, the target of a name's link: highlighted when arrived at,
+// across the code block's full width (out through its 1ch padding).
+.fragment-reference {
+    display: inline-block;
+    width: calc(100% + 2ch);
+    margin: 0 -1ch;
+    padding: 0 1ch;
+    scroll-margin-top: 4rem;
+    &:target {
+        background: $target-bg;
+    }
+}
+
+@media (min-width: $margin-layout) {
+    // Floated into the margin; clearing earlier names stops a long name from
+    // running into the next fragment's.
+    .fragment > .fragment-name {
+        float: left;
+        clear: left;
+        width: var(--margin);
+        margin-left: calc(-1 * var(--indent));
+        padding: 0;
+        text-align: right;
+    }
+    // `≡` and `+≡` take the same width, so the names line up on their `⟩`.
+    .fragment-op {
+        display: inline-block;
+        width: 3ch;
+        text-align: right;
+    }
+}
+
+// Arriving from the source browser targets the fragment: highlight it.
+.fragment:target {
+    > .fragment-name {
+        color: $text-color;
+    }
+    div.highlighter-rouge pre.highlight {
+        background: $target-bg;
+    }
+}
+
+// Previous / next links along the reading order.
+nav.reading-order {
+    display: flex;
+    gap: 1rem;
+    margin-top: 3rem;
+    a.next {
+        margin-left: auto;
+        text-align: right;
+    }
+}
+
+// Title page: the book title, well down the page.
+.title-page {
+    margin: 20vh 0 6rem;
+}
+
+// Table of contents: each chapter, with its sections below it.
+ol.contents {
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+    ol {
+        margin: 0.25rem 0 0;
+        padding-left: 1.5em;
+        list-style: none;
+    }
+    li {
+        margin: 0.25rem 0;
+    }
+    li.chapter {
+        margin-top: 1rem;
+    }
+}
+
+// Source browser: the book's layout, with the listing in place of the
+// text column: 80 characters of code, a 5ch line-number gutter and 1ch of
+// padding each side. Names sit in the left margin as in the book;
+// below 80em the margin narrows so that the listing keeps its full width. The
+// file tree is a collapsed list above the listing, or a column to its right
+// where the window has room for one.
+$source-tree-layout: 97em;
+
+.page.source-page {
+    --source-measure: calc(var(--ch) * 87);
+    --tree-width: calc(var(--ch) * 22);
+    max-width: calc(
+        var(--indent) + var(--source-measure) + 2 * var(--page-padding)
+    );
+    > header,
+    > footer {
+        max-width: var(--source-measure);
+    }
+}
+
+@media (min-width: $margin-layout) {
+    .page.source-page {
+        --indent: clamp(
+            calc(var(--ch) * 20),
+            100vw - var(--source-measure) - 2 * var(--page-padding) - 1rem,
+            calc(var(--margin) + var(--gap))
+        );
+    }
+}
+
+.source-main {
+    margin-left: var(--indent);
+    min-width: 0;
+    h1 code {
+        font-size: calc(var(--title-size) * 0.75);
+    }
+}
+
+// Set like the file headers.
+.file-tree {
+    font-family: $sans-font;
+    font-size: var(--code-size);
+    line-height: var(--code-leading);
+    ul {
+        margin: 0;
+        padding-left: 1.5ch;
+        list-style: none;
+    }
+    li {
+        margin: 0.2rem 0;
+    }
+    summary {
+        cursor: pointer;
+    }
+    .current,
+    li.current > a {
+        color: $text-color;
+        font-weight: 600;
+    }
+}
+
+details.file-tree {
+    margin: 0 0 1.5rem;
+    > summary {
+        color: $muted-color;
+        font-family: $sans-font;
+    }
+}
+
+nav.file-tree {
+    display: none;
+}
+
+@media (min-width: $source-tree-layout) {
+    .page.source-page {
+        max-width: calc(
+            var(--indent) + var(--source-measure) + var(--gap) +
+                var(--tree-width) + 2 * var(--page-padding)
+        );
+    }
+    .source-layout {
+        display: grid;
+        grid-template-columns:
+            calc(var(--indent) + var(--source-measure))
+            var(--tree-width);
+        column-gap: var(--gap);
+    }
+    details.file-tree {
+        display: none;
+    }
+    nav.file-tree {
+        display: block;
+        position: sticky;
+        top: 1rem;
+        align-self: start;
+        max-height: calc(100vh - 2rem);
+        margin-top: 1.5rem;
+        overflow-y: auto;
+    }
+}
+
+table.source-index {
+    border-collapse: collapse;
+    td,
+    th {
+        padding: 0.25rem 1.5rem 0.25rem 0;
+        text-align: left;
+        vertical-align: top;
+    }
+}
+
+// The listing: a file header over the code, as in the book.
+.source-listing {
+    width: var(--source-measure);
+    max-width: 100%;
+    margin: 0 0 1.5rem;
+    counter-reset: line;
+    pre.highlight {
+        width: 100%;
+        margin: 0;
+        padding: 0 1ch;
+        overflow-x: auto;
+        border-radius: 0 0 $corner-radius $corner-radius;
+        background: $code-bg;
+    }
+    .line {
+        display: block;
+        padding-left: 5ch;
+    }
+    // A spacer row (see source.rb) shows only beside the margin, unnumbered.
+    .line.spacer {
+        display: none;
+    }
+    .line.spacer::before {
+        content: none;
+    }
+    .line::before {
+        counter-increment: line;
+        content: counter(line);
+        display: inline-block;
+        width: 4ch;
+        margin-left: -5ch;
+        margin-right: 1ch;
+        color: $line-number-color;
+        text-align: right;
+        user-select: none;
+    }
+    // Each range reaches out through the listing's 1ch padding, so a
+    // highlight spans the full width.
+    .fragment-range {
+        display: block;
+        margin: 0 -1ch;
+        padding: 0 1ch;
+        scroll-margin-top: 2rem;
+    }
+    .fragment-range:target {
+        background: $target-bg;
+    }
+    // Inner fragments inside the target were written elsewhere: show them unhighlighted.
+    .fragment-range:target .fragment-range {
+        background: $code-bg;
+    }
+    // Everything one reference expanded to, inner fragments and all: the
+    // target of a `⟨name⟩` in the book.
+    .fragment-expansion {
+        display: block;
+        margin: 0 -1ch;
+        padding: 0 1ch;
+        scroll-margin-top: 2rem;
+    }
+    .fragment-expansion:target {
+        background: $target-bg;
+    }
+    .fragment-name {
+        color: $muted-color;
+        a {
+            color: inherit;
+        }
+    }
+    .fragment-name.continued {
+        font-style: italic;
+    }
+    // Inline names, on a line of their own above the code they name.
+    pre .fragment-name {
+        display: block;
+        margin-left: 5ch;
+        padding-top: 0.4rem;
+    }
+}
+
+// Names and bars in the margin, each placed by an inline `top` level with its
+// line of code. A fragment's bar spans all its lines; bars for nested
+// fragments stack outward from the code, one column (`--depth`) per level, and
+// the names sit in one column left of them all (`--bars` columns in the file).
+// Bars are inset at each end so that fragments on neighbouring lines stay
+// apart.
+.source-code {
+    position: relative;
+}
+
+.source-margin {
+    display: none;
+}
+
+@media (min-width: $margin-layout) {
+    .source-margin {
+        display: block;
+        position: absolute;
+        --bar-step: 6px;
+        top: 0;
+        // The outermost bar touches the code block.
+        right: 100%;
+        font-family: $code-font;
+        font-size: var(--code-size);
+        line-height: var(--code-leading);
+        .fragment-name {
+            position: absolute;
+            right: calc((var(--bars) - 1) * var(--bar-step) + 2px + 0.5rem);
+            white-space: nowrap;
+        }
+        // The `+` slot is 1ch wide even when empty, so names line up on `⟩`.
+        .fragment-plus {
+            display: inline-block;
+            width: 1ch;
+        }
+    }
+    .fragment-bar {
+        position: absolute;
+        right: calc(var(--depth) * var(--bar-step));
+        width: 2px;
+        padding: 2px 0;
+        background: $muted-color;
+        background-clip: content-box;
+    }
+    .source-listing pre .fragment-name {
+        display: none;
+    }
+    .source-listing .line.spacer {
+        display: block;
+    }
+}

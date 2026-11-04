@@ -1,0 +1,7 @@
+# Editor defaults (Zed and most editors read this). Prettier formats the
+# stylesheets on save with the same settings, from .prettierrc.json.
+root = true
+
+[*.{scss,css}]
+indent_style = space
+indent_size = 4

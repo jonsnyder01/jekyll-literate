@@ -1,0 +1,15 @@
+# Defaults for every book; a book's own _config.yml overrides any of them.
+# (Jekyll ignores a theme's settings for its own built-in keys, such as
+# source, destination or defaults: those belong in the book's config.)
+
+literate:
+  # Where `entangled tangle` writes the tangled files, from the directory the
+  # book is built in. The source browser lists it at /<tangle_dir>/.
+  tangle_dir: src
+
+sass:
+  style: compressed
+  sourcemap: never
+  # The SCSS uses @import (pre-module-system Sass) for its partials.
+  quiet_deps: true
+  silence_deprecations: [import, global-builtin, color-functions, slash-div]

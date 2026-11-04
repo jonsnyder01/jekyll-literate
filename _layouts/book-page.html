@@ -1,0 +1,9 @@
+---
+layout: default
+---
+<h1>{{ page.title }}</h1>
+{% if page.section %}<p class="subtitle"><a href="{{ page.chapter.url | relative_url }}">{{ page.chapter.title }}</a></p>{% endif %}
+
+{{ content }}
+
+{% include reading-order.html %}
