@@ -182,7 +182,10 @@ module Literate
         out << "#{open[:indent]}#{name}\n\n" if name
       end
       out << line
-      out.concat(body)
+      # A reference is written `⟨name⟩` before the code is highlighted: as
+      # `<<name>>` a lexer may take it for code (a Ruby heredoc, say) and
+      # misread the lines after it.
+      out.concat(anchor ? body.map { |l| l.sub(REFERENCE_SOURCE, "\\1⟨\\2⟩") } : body)
       out << lines[close] if close < lines.size
       out << "\n#{open[:indent]}</div>\n" if anchor
       i = close + 1
@@ -332,12 +335,14 @@ module Literate
   end
 
   FRAGMENT_CODE = %r{(<div class="fragment" id="([^"]+)">.*?<pre class="highlight"><code>)(.*?)(</code></pre>)}m
-  REFERENCE_LINE = /\A\s*<<([^<>]+)>>\s*\z/
+  # A reference as written in a fragment, and as render_fragments leaves it
+  # for the highlighter.
+  REFERENCE_SOURCE = /\A(\s*)<<([^<>]+)>>(?=\s*\z)/
+  REFERENCE_LINE = /\A\s*⟨([^⟨⟩]+)⟩\s*\z/
 
-  # Rewrites each reference (a line that is only `<<name>>`) as `⟨name⟩`, the
-  # notation of the names beside fragments, in an anchored span. The name
-  # links to the source browser, where the reference's expansion is
-  # highlighted.
+  # Rewrites each reference (a line that is only `⟨name⟩`) in an anchored
+  # span, in the notation of the names beside fragments. The name links to
+  # the source browser, where the reference's expansion is highlighted.
   def self.mark_references(html, namespace)
     html.gsub(FRAGMENT_CODE) do
       before, referrer_anchor, code, after = $1, $2, $3, $4
