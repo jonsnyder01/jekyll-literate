@@ -60,6 +60,18 @@ module Literate
   CLOSE_FENCE = /\A\s*```\s*\z/
   IGNORE_FENCE = /\A\s*~~~/
 
+  class << self
+    # The site's baseurl (a book on GitHub Pages lives under /<repository>),
+    # set as the weave starts.
+    attr_accessor :baseurl
+  end
+
+  # A link the weave writes into HTML itself; in layouts, Liquid's
+  # relative_url does the same.
+  def self.site_url(path)
+    "#{baseurl}#{path}"
+  end
+
   def self.book_source_file?(page)
     page.ext == ".md"
   end
@@ -232,7 +244,7 @@ module Literate
     appended = id.nil? && operator == "+≡" ? " <em>(continued)</em>" : ""
     header =
       if location
-        %(<div class="file-header"><a href="#{Source.url(location)}##{anchor}"><code>#{CGI.escapeHTML(location)}</code>#{appended}</a></div>)
+        %(<div class="file-header"><a href="#{site_url(Source.url(location))}##{anchor}"><code>#{CGI.escapeHTML(location)}</code>#{appended}</a></div>)
       elsif path
         %(<div class="file-header"><code>#{CGI.escapeHTML(path)}</code>#{appended}</div>)
       end
@@ -240,7 +252,7 @@ module Literate
       # The name links to the reference to it in another fragment's code.
       name_html = "⟨#{CGI.escapeHTML(id)}⟩"
       if (referrer = book[:referrers][key])
-        href = "#{fragment_url(referrer)}##{reference_anchor(fragment_anchor(referrer), qualified)}"
+        href = "#{site_url(fragment_url(referrer))}##{reference_anchor(fragment_anchor(referrer), qualified)}"
         name_html = %(<a href="#{href}">#{name_html}</a>)
       end
       # The operator has a slot of its own, so that in the margin the names
@@ -268,6 +280,7 @@ module Literate
     priority :highest
 
     def generate(site)
+      Literate.baseurl = site.baseurl.to_s.chomp("/")
       pages = site.pages.select { |page| Literate.book_source_file?(page) }.sort_by(&:relative_path)
       Literate.check_chapters(site, pages)
 
@@ -357,7 +370,7 @@ module Literate
         id = reference_anchor(referrer_anchor, qualify(name, namespace))
         ref = "⟨#{CGI.escapeHTML(name)}⟩"
         if (path = source_paths&.dig(referrer_anchor))
-          ref = %(<a href="#{Source.url(path)}##{id}">#{ref}</a>)
+          ref = %(<a href="#{site_url(Source.url(path))}##{id}">#{ref}</a>)
         end
         line = %(#{text[/\A\s*/]}<span class="reference-name">#{ref}</span>)
         seen.add?(id) ? %(<span class="fragment-reference" id="#{id}">#{line}</span>) : line

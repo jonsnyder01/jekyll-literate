@@ -170,7 +170,7 @@ module Literate
       start = listing.ranges.sort_by(&:first).filter_map { |r| anchors[r.key] }
                      .find { |a| a["file"] && !a["appended"] }
       path = "<code>#{CGI.escapeHTML(listing.path)}</code>"
-      path = %(<a href="#{start["url"]}##{start["anchor"]}">#{path}</a>) if start
+      path = %(<a href="#{Literate.site_url(start["url"])}##{start["anchor"]}">#{path}</a>) if start
       %(<div class="file-header">#{path}</div>)
     end
 
@@ -287,7 +287,7 @@ module Literate
           "⟨#{CGI.escapeHTML(anchor["name"])}⟩"
         end
       plus = anchor["appended"] && !anchor["file"] && !resumed ? "+" : ""
-      %(<a href="#{anchor["url"]}##{anchor["anchor"]}">#{name}<span class="fragment-plus">#{plus}</span></a>)
+      %(<a href="#{Literate.site_url(anchor["url"])}##{anchor["anchor"]}">#{name}<span class="fragment-plus">#{plus}</span></a>)
     end
 
     def self.name_classes(anchor, resumed)
@@ -332,8 +332,8 @@ module Literate
 
     def self.index_html(rows)
       body = rows.map do |path, book_pages|
-        links = book_pages.map { |p| %(<a href="#{p["url"]}">#{CGI.escapeHTML(p["title"])}</a>) }.join(", ")
-        %(<tr><td><a href="#{url(path)}"><code>#{CGI.escapeHTML(path)}</code></a></td><td>#{links}</td></tr>)
+        links = book_pages.map { |p| %(<a href="#{Literate.site_url(p["url"])}">#{CGI.escapeHTML(p["title"])}</a>) }.join(", ")
+        %(<tr><td><a href="#{Literate.site_url(url(path))}"><code>#{CGI.escapeHTML(path)}</code></a></td><td>#{links}</td></tr>)
       end.join("\n")
       <<~HTML
         <p>Every file here is tangled from the book. Pick one from the tree, or from the table below with the book pages it comes from.</p>
@@ -352,7 +352,7 @@ module Literate
         node = dirs.reduce(tree) { |n, dir| n[dir + "/"] ||= {} }
         node[file] = path
       end
-      %(<a class="tree-root#{" current" if current.nil?}" href="#{url(dir)}">#{dir}/</a>) + tree_list(tree, current)
+      %(<a class="tree-root#{" current" if current.nil?}" href="#{Literate.site_url(url(dir))}">#{dir}/</a>) + tree_list(tree, current)
     end
 
     def self.tree_list(node, current)
@@ -360,7 +360,7 @@ module Literate
         if child.is_a?(Hash)
           %(<li class="dir"><details open><summary>#{CGI.escapeHTML(name)}</summary>#{tree_list(child, current)}</details></li>)
         else
-          %(<li class="file#{" current" if child == current}"><a href="#{url(child)}">#{CGI.escapeHTML(name)}</a></li>)
+          %(<li class="file#{" current" if child == current}"><a href="#{Literate.site_url(url(child))}">#{CGI.escapeHTML(name)}</a></li>)
         end
       end
       "<ul>#{items.join}</ul>"

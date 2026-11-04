@@ -148,19 +148,37 @@ default 16px. Line heights are the `$text-leading` and `$code-leading` ratios in
 
 `.github/workflows/book.yml` is a reusable workflow that installs Ruby and Entangled, runs
 `bundle exec literate build`, and on pushes to the default branch deploys the destination to
-Cloudflare Pages. A book calls it from its own workflow:
+GitHub Pages, Cloudflare Pages or both. A book calls it from its own workflow. For GitHub Pages,
+set the repository's Pages source to GitHub Actions; the jobs run with the caller's permissions,
+so the calling job grants the three that deploying needs:
 
 ```yaml
 jobs:
   site:
     uses: jonsnyder01/jekyll-literate/.github/workflows/book.yml@main
     with:
-      cloudflare-project: my-book       # omit to only build
+      github-pages: true
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+```
+
+A project site lives under `/<repository>/`, so the build is given that as its `baseurl`; every
+link the weave writes carries it. For Cloudflare Pages:
+
+```yaml
+jobs:
+  site:
+    uses: jonsnyder01/jekyll-literate/.github/workflows/book.yml@main
+    with:
+      cloudflare-project: my-book
     secrets: inherit                    # CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
 ```
 
-Inputs: `entangled-version` (default `2.5.0`), `destination` (default `build/site`) and
-`cloudflare-project`. The deploy is skipped with a warning until `CLOUDFLARE_API_TOKEN` exists.
+Inputs: `entangled-version` (default `2.5.0`), `destination` (default `build/site`),
+`github-pages` (default `false`) and `cloudflare-project` (default none). The Cloudflare deploy
+is skipped with a warning until `CLOUDFLARE_API_TOKEN` exists.
 
 ## Developing the gem
 
