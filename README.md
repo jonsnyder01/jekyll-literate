@@ -164,6 +164,11 @@ Inputs: `entangled-version` (default `2.5.0`), `destination` (default `build/sit
 
 ## Developing the gem
 
+The gem is being rewritten as a literate program in
+[jekyll-literate-book](https://github.com/jonsnyder01/jekyll-literate-book), which will then
+publish every file here. A file that book already tangles (its `bin/compare` lists the rest) is
+changed there, not here.
+
 To try changes against a book without pushing them, point Bundler at a local checkout (the
 book's Gemfile must name `branch: "main"`):
 
