@@ -18,6 +18,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "jekyll", "~> 4.4"
   spec.add_dependency "kramdown-parser-gfm", "~> 1.1"
   spec.add_dependency "rouge", "~> 4.5"
+  # Reads the languages a book declares in entangled.toml.
+  spec.add_dependency "tomlrb", "~> 3.0"
   # `jekyll serve` needs a web server; Ruby 3+ no longer bundles one.
   spec.add_dependency "webrick", "~> 1.9"
 end

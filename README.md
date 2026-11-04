@@ -110,6 +110,24 @@ static void strbuf_reserve(StrBuf *buffer, size_t extra) { … }
 Repeating an `id` makes an appended fragment (shown as `⟨id⟩ +≡`). Other chapters can reference
 a name as `<<strbuf::reserve>>`. Use `~~~` fences for examples that must not be tangled.
 
+A fence's language must be one Entangled knows. Others are declared in `entangled.toml`, and the
+weave reads them from there too, to find their attribute lines:
+
+```toml
+[[languages]]
+name = "Ruby"
+identifiers = ["ruby"]
+comment = { open = "#" }
+
+[[languages]]
+name = "HTML"
+identifiers = ["html"]
+comment = { open = "<!--", close = "-->" }
+```
+
+Book source files are not rendered with Liquid, so a fragment can hold a Liquid template; a file
+that wants Liquid sets `render_with_liquid: true` in its front matter.
+
 ## The book and the source browser
 
 The book opens on a generated title page (`/`), then a table of contents (`/contents/`) of every

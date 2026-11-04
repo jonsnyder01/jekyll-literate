@@ -3,8 +3,9 @@
 # Builds the source browser at /<tangle_dir>/ (/src/ by default): one page per
 # tangled file, with the tangle directory's tree in a sidebar.
 #
-# Entangled's annotations (`// ~/~ begin <<book/…/x.md#name>>[n]` … `// ~/~ end`)
-# record which fragment every line came from. They are removed from the
+# Entangled's annotations (`// ~/~ begin <<book/…/x.md#name>>[n]` … `// ~/~ end`,
+# in the language's own comments, so `<!-- ~/~ end -->` in HTML) record which
+# fragment every line came from. They are removed from the
 # listing and turned into nested, anchored line ranges, so a fragment in the
 # book can link straight to its lines (highlighted with :target). Like a
 # fragment in the book, the listing has a file header with the file's full
@@ -20,8 +21,10 @@ require "rouge"
 
 module Literate
   module Source
-    BEGIN_MARK = %r{\A\s*(?://|#) ~/~ begin <<(?<md>[^#]+)#(?<name>.+)>>\[(?<count>init|\d+)\]\s*\z}
-    END_MARK = %r{\A\s*(?://|#) ~/~ end\s*\z}
+    # As Entangled reads them back: any comment opener, then the mark, then
+    # any closer.
+    BEGIN_MARK = %r{\A\s*\S.*? ~/~ begin <<(?<md>[^#<>]+)#(?<name>[^#<>]+)>>\[(?<count>init|\d+)\]}
+    END_MARK = %r{\A\s*\S.*? ~/~ end\b}
 
     LEXERS = { ".c" => "c", ".h" => "c", ".sh" => "shell" }.freeze
 
@@ -133,11 +136,9 @@ module Literate
     end
 
     def self.render(listing, anchors)
-      lexer = Rouge::Lexer.find(LEXERS[File.extname(listing.path)].to_s) ||
-              Rouge::Lexer.guess_by_filename(listing.path) || Rouge::Lexers::PlainText
-      lexer = lexer.new if lexer.is_a?(Class)
-      formatter = Rouge::Formatters::HTMLLinewise.new(Rouge::Formatters::HTML.new, class: "line")
       source = listing.lines.empty? ? "" : listing.lines.join("\n") + "\n"
+      formatter = Rouge::Formatters::HTMLLinewise.new(Rouge::Formatters::HTML.new, class: "line")
+      lexer = lexer(listing.path, source)
       html_lines = formatter.format(lexer.lex(source)).split(%r{(?<=</div>)})
                             .map { |l| l.delete_prefix('<div class="line">').sub(%r{\n?</div>\z}, "") }
 
@@ -153,6 +154,14 @@ module Literate
         <pre class="highlight"><code>#{context[:out]}</code></pre>
         </div></div>
       HTML
+    end
+
+    # By extension where Rouge's guess would be ambiguous, otherwise from the
+    # file name and contents (a shebang names the language of exe/literate).
+    def self.lexer(path, source)
+      lexer = Rouge::Lexer.find(LEXERS[File.extname(path)].to_s) ||
+              (Rouge::Lexer.guess(filename: path, source: source) rescue Rouge::Lexers::PlainText)
+      lexer.is_a?(Class) ? lexer.new : lexer
     end
 
     # The file header: the file's full path, linking to the fragment in the

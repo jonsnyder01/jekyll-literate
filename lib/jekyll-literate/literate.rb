@@ -3,7 +3,8 @@
 # Weaves the book source (Jekyll's source directory, e.g. book/) into a book:
 #
 # - every .md file in it is a book source file, laid out with book-page
-#   unless it names another layout;
+#   unless it names another layout, and not rendered with Liquid (its
+#   fragments may be Liquid templates themselves) unless it asks to be;
 # - permalinks drop the NN- ordering prefixes (02-strbuf/01-growth.md -> /strbuf/growth/);
 # - each top-level book source file opens a chapter, whose sections are the
 #   files in the book source directory of the same name (02-strbuf.md and
@@ -25,16 +26,35 @@
 
 require "cgi"
 require "pathname"
+require "tomlrb"
 require "yaml"
 
 module Literate
   CONTENTS_URL = "/contents/"
 
-  # Line-comment openers, as Entangled uses them for `<comment>| key: value` attributes.
+  # Comment openers of Entangled 2.5's built-in languages, by fence
+  # language; Entangled reads `<opener>| key: value` lines as attributes.
   COMMENTS = {
-    "c" => "//", "cpp" => "//", "c++" => "//", "rust" => "//",
-    "sh" => "#", "bash" => "#", "python" => "#",
+    "awk" => "#", "gawk" => "#", "mawk" => "#", "nawk" => "#", "sh" => "#", "bash" => "#",
+    "c" => "//", "cpp" => "//", "c++" => "//", "python" => "#", "rust" => "//",
+    "haskell" => "--", "ocaml" => "(*", "ml" => "(*",
+    "scheme" => ";", "r5rs" => ";", "r6rs" => ";", "r7rs" => ";", "racket" => ";", "clojure" => ";",
+    "julia" => "#", "java" => "//", "pure" => "--", "purs" => "--", "purescript" => "--",
+    "css" => "/*", "lua" => "--", "make" => "#", "makefile" => "#", "gnuplot" => "#",
+    "toml" => "#", "yaml" => "#", "fsharp" => "//", "javascript" => "//", "js" => "//",
+    "ecma" => "//", "go" => "//", "golang" => "//", "r" => "#", "rlang" => "#", "nix" => "#",
   }.freeze
+
+  # The built-in languages plus those the book declares under `[[languages]]`
+  # in entangled.toml, in the directory the book is built in.
+  def self.comments
+    return COMMENTS unless File.exist?("entangled.toml")
+
+    declared = Tomlrb.load_file("entangled.toml").fetch("languages", [])
+    declared.each_with_object(COMMENTS.dup) do |language, found|
+      language.fetch("identifiers", []).each { |id| found[id] = language.dig("comment", "open") }
+    end
+  end
 
   OPEN_FENCE = /\A(?<indent>\s*)```(?<lang>[^\s`{]+)\s*\z/
   CLOSE_FENCE = /\A\s*```\s*\z/
@@ -142,7 +162,7 @@ module Literate
       close = (i + 1...lines.size).find { |j| lines[j].chomp.match?(CLOSE_FENCE) } || lines.size
       body = lines[i + 1...close]
       attributes = {}
-      if (comment = COMMENTS[open[:lang]])
+      if (comment = book[:comments][open[:lang]])
         attribute_line = /\A#{Regexp.escape(open[:indent] + comment)}\s*\|(.*)\z/m
         header = body.take_while { |l| l.match?(attribute_line) }
         unless header.empty?
@@ -250,7 +270,7 @@ module Literate
 
       listings = Source.read(site)
       book = {
-        defined: Set.new, anchors: {},
+        defined: Set.new, anchors: {}, comments: Literate.comments,
         locations: Source.locations(listings), referrers: Source.referrers(listings),
       }
       pages.each { |page| page.content = Literate.render_fragments(page, book) }
@@ -358,6 +378,7 @@ Jekyll::Hooks.register :pages, :post_init do |page|
   raise "#{shown}: chapters cannot be nested; a book source directory holds only files" if Literate.path_parts(path).size > 2
 
   page.data["layout"] ||= "book-page"
+  page.data["render_with_liquid"] = false unless page.data.key?("render_with_liquid")
   page.data["permalink"] = Literate.permalink(path)
   page.data["section"] = Literate.section?(path)
 end
